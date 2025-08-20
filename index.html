@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Sonic Art Party</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    .hidden{display:none}
+  </style>
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</head>
+<body>
+
+  <audio id="bgMusic" loop>
+  <source src="img/Windmill Isle - Sonic Unleashed.mp3" type="audio/mpeg">
+  Tu navegador no soporta audio HTML5.
+</audio>
+
+<!-- inicio de sesión -->
+<div id="loginModal" class="modal show">
+  <div class="modal-content elevated">
+    <h2>Iniciar sesión</h2>
+    <div class="grid">
+      <label>Nombre <input id="loginName" type="text" placeholder="Tu nombre" /></label>
+      <label>Foto <input id="loginAvatar" type="file" accept="image/*" /></label>
+       <label for="password">Contraseña</label>
+    <input type="password" id="password" placeholder="Tu contraseña">
+    </div>
+    <button id="loginContinue" class="btn">Continuar</button>
+  </div>
+</div>
+
+<!--  Configurar partida -->
+<div id="startModal" class="modal hidden">
+  <div class="modal-content elevated">
+    <h2>Configurar partida</h2>
+    
+    <div class="grid">
+      <label>Tema 
+        <input id="matchTopic" type="text" placeholder="Escribe el tema" />
+      </label>
+      <label>Tiempo 
+        <select id="matchTime">
+          <option value="60000">1 minuto</option>
+          <option value="300000">5 minutos</option>
+          <option value="600000">10 minutos</option>
+          <option value="1200000">20 minutos</option>
+          <option value="1800000">30 minutos</option>
+        </select>
+      </label>
+    </div>
+
+    <div class="divider"></div>
+    <div class="grid two">
+      <div>
+        <h3>Crear sala</h3>
+        <button id="createRoomBtn" class="btn">Crear</button>
+        
+        <div id="hostControls" class="mt-2 hidden">
+          <p id="hostCode" class="muted"></p>
+          <button id="enterAsHostBtn" class="btn ghost">Entrar como anfitrión</button>
+        </div>
+      </div>
+      <div>
+        <h3>Unirse a sala</h3>
+        <input id="joinCode" type="text" placeholder="Código de sala" />
+        <button id="joinRoomBtn" class="btn ghost">Unirme</button>
+        <p id="joinStatus" class="muted"></p>
+      </div>
+    </div>
+  </div>
+</div>
+
+  <header class="app-header">
+  <div class="left">
+    <button id="menuBtn" aria-label="Menú" class="icon-btn">☰</button>
+    <h1 id="headerTheme">Tema: —</h1>
+    <button id="startMatchBtn" class="btn hidden" style="margin-left: 10px;">Iniciar tiempo</button>
+  </div>
+  <div class="center">
+    <div id="timer" class="timer">00:00</div>
+  </div>
+  <div class="right">
+    <label class="theme-toggle">
+      <input id="darkToggle" type="checkbox" />
+      <span class="label">🌙</span>
+    </label>
+  </div>
+</header>
+
+  <!-- Panel hamburguesa -->
+  <div id="menuPanel" class="menu-panel hidden">
+    <div class="menu-row">
+      <button id="copyInvite" class="btn">Copiar código de invitación</button>
+      <span id="currentRoom" class="muted"></span>
+    </div>
+    <div class="menu-row">
+      <button id="clearCanvasBtn" class="btn ghost">Limpiar lienzo</button>
+      <button id="savePngBtn" class="btn">Guardar PNG</button>
+    </div>
+    <div class="menu-row">
+      <button id="leaveBtn" class="btn danger">Abandonar partida</button>
+    </div>
+  </div>
+
+  <!--principal -->
+  <main class="app-main">
+   <section class="paint-wrap">
+            <div class="toolbar">
+                <label>Pinceles:
+                    <div>
+                        <button class="brush-btn active" data-brush="round" title="Redondo">redondo</button>
+                        <button class="brush-btn" data-brush="fine" title="Punta fina">punta fina</button>
+                        <button class="brush-btn" data-brush="soft" title="Difuminado">difuminado</button>
+                        <button class="brush-btn" data-brush="watercolor" title="Acuarela">acuarela</button>
+                    </div>
+                    <div style="margin-top:10px;">
+              <button id="undoBtn" class="btn ghost">↩️</button>
+              <button id="redoBtn" class="btn ghost">↪️</button>
+            </div>
+                </label>
+            </div>
+            <canvas id="canvas"></canvas>
+            <div class="tools">
+                <label class="pill">Color
+                    <input id="colorPicker" type="color" value="#111827" />
+                </label>
+                <label class="pill">Grosor
+                    <input id="sizePicker" type="range" min="1" max="40" value="8" />
+                    <span id="sizeVal">8</span>
+                </label>
+                <button id="eraserBtn" class="btn ghost">Borrador</button>
+            </div>
+        </section>
+
+
+    <!-- Chat-->
+    <aside class="chat">
+      <div class="chat-header">
+        <div class="me">
+          <img id="meAvatar" class="avatar" alt="Yo" />
+          <span id="meName">Yo</span>
+        </div>
+      </div>
+      <div id="chatLog" class="chat-log"></div>
+      <div class="chat-input">
+        <input id="chatText" type="text" placeholder="Escribe un mensaje y Enter…" />
+      </div>
+    </aside>
+  </main>
+
+  
+<!-- temática -->
+<div id="topicModal" class="modal hidden">
+  <div class="modal-content elevated">
+    <h2>Elige la temática</h2>
+    <input id="topicInput" type="text" placeholder="Ejemplo: Animales, superhéroes..." />
+    
+    <div class="actions">
+      <button id="topicCancel" class="btn">Cancelar</button>
+      <button id="topicConfirm" class="btn btn-primary">Confirmar</button>
+    </div>
+  </div>
+</div>
+
+
+<!--fin de ronda -->
+<div id="endModal" class="modal">
+  <div class="modal-content">
+    <h2 class="text-center mt-3">¡Tiempo!</h2>
+
+    <div id="drawingsCarousel" class="carousel slide" data-bs-ride="carousel">
+      <div class="carousel-inner" id="carousel-inner">
+      </div>
+      <button class="carousel-control-prev" type="button" data-bs-target="#drawingsCarousel" data-bs-slide="prev">
+        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+        <span class="visually-hidden">Anterior</span>
+      </button>
+      <button class="carousel-control-next" type="button" data-bs-target="#drawingsCarousel" data-bs-slide="next">
+        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+        <span class="visually-hidden">Siguiente</span>
+      </button>
+    </div>
+
+    <p class="text-center mt-3">Puedes guardar tu dibujo en cada tarjeta 👆</p>
+    <div class="row">
+      <button id="anotherRoundBtn" class="btn">Otra ronda</button>
+      <button id="exitBtn" class="btn danger">Abandonar</button>
+    </div>
+  </div>
+</div>
+
+<!-- la cosa esa del lapiz loader NO MOVER -->
+<div id="loaderOverlay" class="loader-overlay hidden">
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" class="pencil">
+    <defs>
+      <clipPath id="pencil-eraser">
+        <rect height="30" width="30" ry="5" rx="5"></rect>
+      </clipPath>
+    </defs>
+    <circle transform="rotate(-113,100,100)" stroke-linecap="round" stroke-dashoffset="439.82"
+      stroke-dasharray="439.82 439.82" stroke-width="2" stroke="currentColor" fill="none" r="70"
+      class="pencil__stroke"></circle>
+    <g transform="translate(100,100)" class="pencil__rotate">
+      <g fill="none">
+        <circle transform="rotate(-90)" stroke-dashoffset="402" stroke-dasharray="402.12 402.12"
+          stroke-width="30" stroke="hsl(223,90%,50%)" r="64" class="pencil__body1"></circle>
+        <circle transform="rotate(-90)" stroke-dashoffset="465" stroke-dasharray="464.96 464.96"
+          stroke-width="10" stroke="hsl(223,90%,60%)" r="74" class="pencil__body2"></circle>
+        <circle transform="rotate(-90)" stroke-dashoffset="339" stroke-dasharray="339.29 339.29"
+          stroke-width="10" stroke="hsl(223,90%,40%)" r="54" class="pencil__body3"></circle>
+      </g>
+      <g transform="rotate(-90) translate(49,0)" class="pencil__eraser">
+        <g class="pencil__eraser-skew">
+          <rect height="30" width="30" ry="5" rx="5" fill="hsl(223,90%,70%)"></rect>
+          <rect clip-path="url(#pencil-eraser)" height="30" width="5" fill="hsl(223,90%,60%)"></rect>
+          <rect height="20" width="30" fill="hsl(223,10%,90%)"></rect>
+          <rect height="20" width="15" fill="hsl(223,10%,70%)"></rect>
+          <rect height="20" width="5" fill="hsl(223,10%,80%)"></rect>
+          <rect height="2" width="30" y="6" fill="hsla(223,10%,10%,0.2)"></rect>
+          <rect height="2" width="30" y="13" fill="hsla(223,10%,10%,0.2)"></rect>
+        </g>
+      </g>
+      <g transform="rotate(-90) translate(49,-30)" class="pencil__point">
+        <polygon points="15 0,30 30,0 30" fill="hsl(33,90%,70%)"></polygon>
+        <polygon points="15 0,6 30,0 30" fill="hsl(33,90%,50%)"></polygon>
+        <polygon points="15 0,20 10,10 10" fill="hsl(223,10%,10%)"></polygon>
+      </g>
+    </g>
+  </svg>
+  <p class="loader-text">Cargando...</p>
+</div>
+
+  <!-- PeerJS (CDN) -->
+  <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
